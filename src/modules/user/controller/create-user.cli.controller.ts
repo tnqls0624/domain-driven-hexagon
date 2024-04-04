@@ -1,7 +1,7 @@
 import { Inject, Logger } from '@nestjs/common';
 import { Command, Console } from 'nestjs-console';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from './create-user.command';
+import { CreateUserCommand } from '../commands/create-user/create-user.command';
 import { LoggerPort } from '@libs/ports/logger.port';
 
 // Allows creating a user using CLI (Command Line Interface)

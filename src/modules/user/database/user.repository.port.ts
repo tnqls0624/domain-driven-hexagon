@@ -1,5 +1,6 @@
 import { PaginatedQueryParams, RepositoryPort } from '@libs/ddd';
 import { UserEntity } from '../domain/user.entity';
+import { Prisma } from '@prisma/client';
 
 export interface FindUsersParams extends PaginatedQueryParams {
   readonly country?: string;
@@ -7,6 +8,6 @@ export interface FindUsersParams extends PaginatedQueryParams {
   readonly street?: string;
 }
 
-export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
-  findOneByEmail(email: string): Promise<UserEntity | null>;
+export interface UserRepositoryPort extends RepositoryPort {
+  insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined>;
 }

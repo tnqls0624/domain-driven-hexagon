@@ -1,13 +1,14 @@
-import { InjectPool } from 'nestjs-slonik';
-import { DatabasePool, sql } from 'slonik';
 import { UserRepositoryPort } from './user.repository.port';
 import { z } from 'zod';
 import { UserMapper } from '../user.mapper';
 import { UserRoles } from '../domain/user.types';
 import { UserEntity } from '../domain/user.entity';
 import { SqlRepositoryBase } from '@src/libs/db/sql-repository.base';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { RequestContextService } from '@libs/application/context/AppRequestContext';
+import { PRISMA_CLIENT } from '@libs/db/prisma.di-tokens';
 
 /**
  * Runtime validation of user object for extra safety (in case database schema changes).
@@ -40,29 +41,27 @@ export class UserRepository
   protected schema = userSchema;
 
   constructor(
-    @InjectPool()
-    pool: DatabasePool,
+    @Inject(PRISMA_CLIENT)
+    prisma: PrismaClient,
     mapper: UserMapper,
     eventEmitter: EventEmitter2,
   ) {
-    super(pool, mapper, eventEmitter, new Logger(UserRepository.name));
+    super(prisma, mapper, eventEmitter, new Logger(UserRepository.name));
   }
 
-  async updateAddress(user: UserEntity): Promise<void> {
-    const address = user.getProps().address;
-    const statement = sql.type(userSchema)`
-    UPDATE "users" SET
-    street = ${address.street}, country = ${address.country}, "postalCode" = ${address.postalCode}
-    WHERE id = ${user.id}`;
+  // async insert(entity: UserEntity): Promise<UserEntity | null> {
+  async insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined> {
+    try {
+      const tx = RequestContextService.getTransactionConnection();
+      const entities = Array.isArray(entity) ? entity : [entity];
+      const records = entities.map(this.mapper.toPersistence);
 
-    await this.writeQuery(statement, user);
-  }
-
-  async findOneByEmail(email: string): Promise<UserEntity> {
-    const user = await this.pool.one(
-      sql.type(userSchema)`SELECT * FROM "users" WHERE email = ${email}`,
-    );
-
-    return this.mapper.toDomain(user);
+      const users = await tx?.user.createMany({
+        data: records,
+      });
+      return users;
+    } catch (error) {
+      throw error;
+    }
   }
 }

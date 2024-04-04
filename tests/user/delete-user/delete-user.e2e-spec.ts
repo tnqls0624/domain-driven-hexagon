@@ -1,9 +1,7 @@
 import { UserResponseDto } from '@modules/user/dtos/user.response.dto';
 import { IdResponse } from '@src/libs/api/id.response.dto';
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { DatabasePool, sql } from 'slonik';
 import { TestContext } from '@tests/test-utils/TestContext';
-import { getConnectionPool } from '../../setup/jestSetupAfterEnv';
 import {
   CreateUserTestContext,
   givenUserProfileData,
@@ -14,16 +12,16 @@ import { ApiClient } from '@tests/test-utils/ApiClient';
 const feature = loadFeature('tests/user/delete-user/delete-user.feature');
 
 defineFeature(feature, (test) => {
-  let pool: DatabasePool;
+  // let pool: DatabasePool;
   const apiClient = new ApiClient();
 
   beforeAll(() => {
-    pool = getConnectionPool();
+    // pool = getConnectionPool();
   });
 
   afterEach(async () => {
-    await pool.query(sql`TRUNCATE "users"`);
-    await pool.query(sql`TRUNCATE "wallets"`);
+    // await pool.query(sql`TRUNCATE "users"`);
+    // await pool.query(sql`TRUNCATE "wallets"`);
   });
 
   test('I can delete a user', ({ given, when, then, and }) => {

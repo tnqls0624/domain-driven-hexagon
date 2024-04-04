@@ -1,6 +1,6 @@
 import { routesV1 } from '@src/configs/app.routes';
 import { IdResponse } from '@src/libs/api/id.response.dto';
-import { CreateUserRequestDto } from '@src/modules/user/commands/create-user/create-user.request.dto';
+import { CreateUserRequestDto } from '@modules/user/dtos/create-user.request.dto';
 import { UserPaginatedResponseDto } from '@src/modules/user/dtos/user.paginated.response.dto';
 import { getHttpServer } from '@tests/setup/jestSetupAfterEnv';
 

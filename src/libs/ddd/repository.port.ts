@@ -1,6 +1,4 @@
-import { Option } from 'oxide.ts';
-
-/*  Most of repositories will probably need generic 
+/*  Most of repositories will probably need generic
     save/find/delete operations, so it's easier
     to have some shared interfaces.
     More specific queries should be defined
@@ -30,12 +28,12 @@ export type PaginatedQueryParams = {
   orderBy: OrderBy;
 };
 
-export interface RepositoryPort<Entity> {
-  insert(entity: Entity | Entity[]): Promise<void>;
-  findOneById(id: string): Promise<Option<Entity>>;
-  findAll(): Promise<Entity[]>;
-  findAllPaginated(params: PaginatedQueryParams): Promise<Paginated<Entity>>;
-  delete(entity: Entity): Promise<boolean>;
+export interface RepositoryPort {
+  // insert(entity: Entity | Entity[]): Promise<void>;
+  // findOneById(id: string): Promise<Option<Entity>>;
+  // findAll(): Promise<Entity[]>;
+  // findAllPaginated(params: PaginatedQueryParams): Promise<Paginated<Entity>>;
+  // delete(entity: Entity): Promise<boolean>;
 
   transaction<T>(handler: () => Promise<T>): Promise<T>;
 }

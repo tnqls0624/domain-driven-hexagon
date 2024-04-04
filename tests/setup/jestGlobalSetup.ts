@@ -1,4 +1,4 @@
-import { databaseConfig } from '../../src/configs/database.config';
+import { databaseConfig } from '@src/configs/database.config';
 
 module.exports = async (): Promise<void> => {
   if (!databaseConfig.database.includes('test')) {

@@ -20,16 +20,15 @@ export class CreateUserService implements ICommandHandler {
   async execute(
     command: CreateUserCommand,
   ): Promise<Result<AggregateID, UserAlreadyExistsError>> {
-    const user = UserEntity.create({
-      email: command.email,
-      address: new Address({
-        country: command.country,
-        postalCode: command.postalCode,
-        street: command.street,
-      }),
-    });
-
     try {
+      const user = UserEntity.create({
+        email: command.email,
+        address: new Address({
+          country: command.country,
+          postalCode: command.postalCode,
+          street: command.street,
+        }),
+      });
       /* Wrapping operation in a transaction to make sure
          that all domain events are processed atomically */
       await this.userRepo.transaction(async () => this.userRepo.insert(user));

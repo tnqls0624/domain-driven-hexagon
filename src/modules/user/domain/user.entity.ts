@@ -1,4 +1,4 @@
-import { AggregateRoot, AggregateID } from '@libs/ddd';
+import { AggregateRoot, AggregateID, CreateEntityProps } from '@libs/ddd';
 import { UserCreatedDomainEvent } from './events/user-created.domain-event';
 import { Address, AddressProps } from './value-objects/address.value-object';
 import {
@@ -13,7 +13,12 @@ import { UserAddressUpdatedDomainEvent } from './events/user-address-updated.dom
 import { randomUUID } from 'crypto';
 
 export class UserEntity extends AggregateRoot<UserProps> {
-  protected readonly _id: AggregateID;
+  protected _id: AggregateID;
+
+  constructor(createProps: CreateEntityProps<UserProps>) {
+    super(createProps);
+    this._id = createProps.id;
+  }
 
   static create(create: CreateUserProps): UserEntity {
     const id = randomUUID();

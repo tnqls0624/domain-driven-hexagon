@@ -35,7 +35,7 @@ export abstract class DomainEvent {
 
   public readonly metadata: DomainEventMetadata;
 
-  constructor(props: DomainEventProps<unknown>) {
+  protected constructor(props: DomainEventProps<unknown>) {
     if (Guard.isEmpty(props)) {
       throw new ArgumentNotProvidedException(
         'DomainEvent props should not be empty',
