@@ -71,6 +71,9 @@ export class UserEntity extends AggregateRoot<UserProps> {
     this.addEvent(
       new UserDeletedDomainEvent({
         aggregateId: this.id,
+        metadata: {
+          userId: this.id,
+        },
       }),
     );
   }

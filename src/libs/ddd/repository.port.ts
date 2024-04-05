@@ -5,6 +5,9 @@
     in a respective repository.
 */
 
+import { Option } from 'oxide.ts';
+import { Entity } from '.';
+
 export class Paginated<T> {
   readonly count: number;
   readonly limit: number;
@@ -30,10 +33,10 @@ export type PaginatedQueryParams = {
 
 export interface RepositoryPort {
   // insert(entity: Entity | Entity[]): Promise<void>;
-  // findOneById(id: string): Promise<Option<Entity>>;
+  // findOneById(id: string): Promise<Option<Entity<any>>>;
   // findAll(): Promise<Entity[]>;
   // findAllPaginated(params: PaginatedQueryParams): Promise<Paginated<Entity>>;
-  // delete(entity: Entity): Promise<boolean>;
+  // delete(entity: Entity<any>): Promise<boolean>;
 
   transaction<T>(handler: () => Promise<T>): Promise<T>;
 }

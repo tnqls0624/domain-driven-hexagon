@@ -22,11 +22,9 @@ export class FindUsersHttpController {
     type: UserPaginatedResponseDto,
   })
   async findUsers(
-    @Body() request: FindUsersRequestDto,
     @Query() queryParams: PaginatedQueryRequestDto,
   ): Promise<UserPaginatedResponseDto> {
     const query = new FindUsersQuery({
-      ...request,
       limit: queryParams?.limit,
       page: queryParams?.page,
     });
@@ -34,9 +32,7 @@ export class FindUsersHttpController {
       Paginated<UserModel>,
       Error
     > = await this.queryBus.execute(query);
-
     const paginated = result.unwrap();
-
     // Whitelisting returned properties
     return new UserPaginatedResponseDto({
       ...paginated,

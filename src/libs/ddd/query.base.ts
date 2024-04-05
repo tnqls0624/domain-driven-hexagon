@@ -14,7 +14,7 @@ export abstract class PaginatedQueryBase extends QueryBase {
   orderBy: OrderBy;
   page: number;
 
-  constructor(props: PaginatedParams<PaginatedQueryBase>) {
+  protected constructor(props: PaginatedParams<PaginatedQueryBase>) {
     super();
     this.limit = props.limit || 20;
     this.offset = props.page ? props.page * this.limit : 0;

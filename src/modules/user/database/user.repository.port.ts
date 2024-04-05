@@ -1,6 +1,7 @@
 import { PaginatedQueryParams, RepositoryPort } from '@libs/ddd';
 import { UserEntity } from '../domain/user.entity';
 import { Prisma } from '@prisma/client';
+import { Option } from 'oxide.ts';
 
 export interface FindUsersParams extends PaginatedQueryParams {
   readonly country?: string;
@@ -10,4 +11,7 @@ export interface FindUsersParams extends PaginatedQueryParams {
 
 export interface UserRepositoryPort extends RepositoryPort {
   insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined>;
+
+  delete(entity: UserEntity): Promise<boolean>;
+  findOneById(id: string): Promise<Option<UserEntity>>;
 }

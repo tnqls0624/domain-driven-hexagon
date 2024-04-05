@@ -9,6 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { RequestContextService } from '@libs/application/context/AppRequestContext';
 import { PRISMA_CLIENT } from '@libs/db/prisma.di-tokens';
+import { None, Option, Some } from 'oxide.ts';
 
 /**
  * Runtime validation of user object for extra safety (in case database schema changes).
@@ -41,13 +42,52 @@ export class UserRepository
   protected schema = userSchema;
 
   constructor(
-    @Inject(PRISMA_CLIENT)
-    prisma: PrismaClient,
+    @Inject(PRISMA_CLIENT) prisma: PrismaClient,
     mapper: UserMapper,
     eventEmitter: EventEmitter2,
   ) {
     super(prisma, mapper, eventEmitter, new Logger(UserRepository.name));
   }
+
+  async findOneById(id: string): Promise<Option<any>> {
+    const result = await this.prisma.user.findFirst({
+      where: {
+        id,
+      },
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
+  // async findAll(): Promise<Aggregate[]> {
+  //   const query = sql.type(this.schema)`SELECT *
+  //                                       FROM ${sql.identifier([
+  //                                           this.tableName,
+  //                                       ])}`;
+  //
+  //   const result = await this.pool.query(query);
+  //
+  //   return result.rows.map(this.mapper.toDomain);
+  // }
+  //
+  // async findAllPaginated(
+  //   params: PaginatedQueryParams,
+  // ): Promise<Paginated<Aggregate>> {
+  //   const query = sql.type(this.schema)`
+  //       SELECT *
+  //       FROM ${sql.identifier([this.tableName])} LIMIT ${params.limit}
+  //       OFFSET ${params.offset}
+  //   `;
+  //
+  //   const result = await this.pool.query(query);
+  //
+  //   const entities = result.rows.map(this.mapper.toDomain);
+  //   return new Paginated({
+  //     data: entities,
+  //     count: result.rowCount,
+  //     limit: params.limit,
+  //     page: params.page,
+  //   });
+  // }
 
   // async insert(entity: UserEntity): Promise<UserEntity | null> {
   async insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined> {
@@ -55,13 +95,31 @@ export class UserRepository
       const tx = RequestContextService.getTransactionConnection();
       const entities = Array.isArray(entity) ? entity : [entity];
       const records = entities.map(this.mapper.toPersistence);
-
-      const users = await tx?.user.createMany({
+      return await tx?.user.createMany({
         data: records,
       });
-      return users;
     } catch (error) {
       throw error;
     }
+  }
+
+  async delete(entity: UserEntity): Promise<boolean> {
+    entity.validate();
+    this.logger.debug(
+      `[${RequestContextService.getRequestId()}] deleting entities ${
+        entity.id
+      } from ${this.tableName}`,
+    );
+    await this.prisma.user.update({
+      where: {
+        id: entity.id,
+      },
+      data: {
+        removedAt: new Date(),
+      },
+    });
+    await entity.publishEvents(this.logger, this.eventEmitter);
+
+    return true;
   }
 }

@@ -1,27 +1,20 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Ok, Result } from 'oxide.ts';
+import { Ok } from 'oxide.ts';
 import { PaginatedParams, PaginatedQueryBase } from '@libs/ddd/query.base';
 import { Paginated } from '@src/libs/ddd';
-import { UserModel, userSchema } from '../../database/user.repository';
+import { PRISMA_CLIENT } from '@libs/db/prisma.di-tokens';
+import { Inject } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 
 export class FindUsersQuery extends PaginatedQueryBase {
-  readonly country?: string;
-
-  readonly postalCode?: string;
-
-  readonly street?: string;
-
   constructor(props: PaginatedParams<FindUsersQuery>) {
     super(props);
-    this.country = props.country;
-    this.postalCode = props.postalCode;
-    this.street = props.street;
   }
 }
 
 @QueryHandler(FindUsersQuery)
 export class FindUsersQueryHandler implements IQueryHandler {
-  constructor() {
+  constructor(@Inject(PRISMA_CLIENT) private prisma: PrismaClient) {
   }
 
   /**
@@ -32,9 +25,33 @@ export class FindUsersQueryHandler implements IQueryHandler {
    */
   async execute(
     query: FindUsersQuery,
-  // ): Promise<Result<Paginated<UserModel>, Error>> {
+    // ): Promise<Result<Paginated<UserModel>, Error>> {
   ): Promise<any> {
-    return;
+    const { limit, orderBy, page } = query;
+    const [records, rowCount] = await Promise.all([
+        this.prisma.user.findMany({
+          where: {
+            removedAt: null,
+          },
+          skip: (page - 1) * limit,
+          take: limit,
+          orderBy: orderBy.field ? { id: orderBy.param } : {},
+        }),
+        this.prisma.user.count({
+          where: {
+            removedAt: null,
+          },
+        }),
+      ],
+    );
+    return Ok(
+      new Paginated({
+        data: records,
+        count: rowCount,
+        limit: query.limit,
+        page: query.page,
+      }),
+    );
     /**
      * Constructing a query with Slonik.
      * More info: https://contra.com/p/AqZWWoUB-writing-composable-sql-using-java-script

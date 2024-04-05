@@ -2,6 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Paginated } from '../ddd';
 
 export abstract class PaginatedResponseDto<T> extends Paginated<T> {
+  constructor(props: Paginated<T>) {
+    super(props);
+    this.count = props.count;
+    this.limit = props.limit;
+    this.page = props.page;
+  }
+
   @ApiProperty({
     example: 5312,
     description: 'Total number of items',
