@@ -9,7 +9,6 @@ const apiLayerPaths = [
   'response',
   'dto\\.ts$',
   'controller\\.ts$',
-  'resolver\\.ts$',
 ];
 
 const applicationLayerPaths = ['application', '\\.service\\.ts$'];

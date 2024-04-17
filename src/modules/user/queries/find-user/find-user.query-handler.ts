@@ -38,29 +38,5 @@ export class FindUserQueryHandler implements IQueryHandler {
     });
     if (!found) return Err(new UserNotFoundError());
     return Ok(found);
-    /**
-     * Constructing a query with Slonik.
-     * More info: https://contra.com/p/AqZWWoUB-writing-composable-sql-using-java-script
-     */
-    // const statement = sql.type(userSchema)`
-    //      SELECT *
-    //      FROM users
-    //      WHERE
-    //        ${query.country ? sql`country = ${query.country}` : true} AND
-    //        ${query.street ? sql`street = ${query.street}` : true} AND
-    //        ${query.postalCode ? sql`"postalCode" = ${query.postalCode}` : true}
-    //      LIMIT ${query.limit}
-    //      OFFSET ${query.offset}`;
-    //
-    // const records = await this.pool.query(statement);
-
-    // return Ok(
-    //   new Paginated({
-    //     data: records.rows,
-    //     count: records.rowCount,
-    //     limit: query.limit,
-    //     page: query.page,
-    //   }),
-    // );
   }
 }

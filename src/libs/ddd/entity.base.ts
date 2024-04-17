@@ -1,10 +1,10 @@
+import { convertPropsToObject } from '@libs/utils';
+import { Guard } from '@libs/guard';
 import {
-  ArgumentNotProvidedException,
   ArgumentInvalidException,
+  ArgumentNotProvidedException,
   ArgumentOutOfRangeException,
-} from '../exceptions';
-import { Guard } from '../guard';
-import { convertPropsToObject } from '../utils';
+} from '@libs/exceptions';
 
 export type AggregateID = string;
 

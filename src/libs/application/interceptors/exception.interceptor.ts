@@ -8,8 +8,8 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ExceptionBase } from '@libs/exceptions';
-import { RequestContextService } from '../context/AppRequestContext';
 import { ApiErrorResponse } from '@src/libs/api/api-error.response';
+import { RequestContextService } from '@libs/application/context/AppRequestContext';
 
 export class ExceptionInterceptor implements NestInterceptor {
   private readonly logger: Logger = new Logger(ExceptionInterceptor.name);

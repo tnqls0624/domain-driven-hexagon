@@ -30,6 +30,7 @@ export abstract class ExceptionBase extends Error {
 
   /**
    * @param {string} message
+   * @param cause
    * @param {ObjectLiteral} [metadata={}]
    * **BE CAREFUL** not to include sensitive info in 'metadata'
    * to prevent leaks since all exception's data will end up
@@ -48,7 +49,7 @@ export abstract class ExceptionBase extends Error {
   }
 
   /**
-   * By default in NodeJS Error objects are not
+   * By default, in Node.js Error objects are not
    * serialized properly when sending plain objects
    * to external processes. This method is a workaround.
    * Keep in mind not to return a stack trace to user when in production.

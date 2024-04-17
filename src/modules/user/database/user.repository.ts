@@ -14,7 +14,6 @@ import { NotFoundException } from '@libs/exceptions';
 
 /**
  * Runtime validation of user object for extra safety (in case database schema changes).
- * https://github.com/gajus/slonik#runtime-validation
  * If you prefer to avoid performance penalty of validation, use interfaces instead.
  */
 export const userSchema = z.object({

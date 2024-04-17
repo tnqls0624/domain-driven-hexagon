@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import helmet from '@fastify/helmet';
@@ -9,6 +8,7 @@ import {
 } from '@nestjs/platform-fastify';
 import multipart from '@fastify/multipart';
 import compression from '@fastify/compress';
+import { AppModule } from '@src/app.module';
 
 declare const module: any;
 async function bootstrap() {

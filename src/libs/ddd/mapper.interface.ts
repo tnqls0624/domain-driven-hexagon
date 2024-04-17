@@ -1,4 +1,4 @@
-import { Entity } from './entity.base';
+import { Entity } from '@libs/ddd/entity.base';
 
 export interface Mapper<
   DomainEntity extends Entity<any>,

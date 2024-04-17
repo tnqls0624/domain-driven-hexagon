@@ -2,13 +2,9 @@ import { UserRepositoryPort } from '@modules/user/database/user.repository.port'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Err, Ok, Result } from 'oxide.ts';
 import { UpdateUserAddressCommand } from './update-user-address.command';
-import { ConflictException, NotFoundException } from '@libs/exceptions';
 import { Inject } from '@nestjs/common';
 import { USER_REPOSITORY } from '../../user.di-tokens';
-import {
-  UserAlreadyExistsError,
-  UserNotFoundError,
-} from '@modules/user/domain/user.errors';
+import { UserNotFoundError } from '@modules/user/domain/user.errors';
 
 @CommandHandler(UpdateUserAddressCommand)
 export class UpdateUserAddressService implements ICommandHandler {

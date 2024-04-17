@@ -1,14 +1,10 @@
-import { ConflictException, NotFoundException } from '@libs/exceptions';
 import { UserRepositoryPort } from '@modules/user/database/user.repository.port';
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { Err, Ok, Result } from 'oxide.ts';
 import { USER_REPOSITORY } from '../../user.di-tokens';
 import { DeleteUserCommand } from '@modules/user/commands/delete-user/delete-user.command';
-import {
-  UserAlreadyExistsError,
-  UserNotFoundError,
-} from '@modules/user/domain/user.errors';
+import { UserNotFoundError } from '@modules/user/domain/user.errors';
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserService {

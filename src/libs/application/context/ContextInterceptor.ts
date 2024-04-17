@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { nanoid } from 'nanoid';
-import { RequestContextService } from './AppRequestContext';
+import { RequestContextService } from '@libs/application/context/AppRequestContext';
 
 @Injectable()
 export class ContextInterceptor implements NestInterceptor {
