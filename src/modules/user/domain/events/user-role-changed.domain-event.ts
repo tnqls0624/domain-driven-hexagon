@@ -1,5 +1,5 @@
 import { DomainEvent, DomainEventProps } from '@libs/ddd';
-import { UserRoles } from '../user.types';
+import { UserRoles } from '@prisma/client';
 
 export class UserRoleChangedDomainEvent extends DomainEvent {
   readonly oldRole: UserRoles;

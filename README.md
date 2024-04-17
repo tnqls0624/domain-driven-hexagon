@@ -217,7 +217,7 @@ Use cases are, simply said, list of actions required from an application.
 
 </details>
 
-Example file: [create-user.service.ts](src/modules/user/commands/create-user/create-user.service.ts)
+Example file: [update-user-address.service.ts](src/modules/user/commands/create-user/create-user.service.ts)
 
 More about services:
 
@@ -230,7 +230,7 @@ This principle is called [Command–Query Separation(CQS)](https://en.wikipedia.
 
 ### Commands
 
-`Command` is an object that signals user intent, for example `CreateUserCommand`. It describes a single action (but does not perform it).
+`Command` is an object that signals user intent, for example `UpdateUserAddressCommand`. It describes a single action (but does not perform it).
 
 `Commands` are used for state-changing actions, like creating new user and saving it to the database. Create, Update and Delete operations are considered as state-changing.
 
@@ -248,9 +248,9 @@ Avoid command handlers executing other commands in this fashion: Command → Com
 
 Example files:
 
-- [create-user.command.ts](src/modules/user/commands/create-user/create-user.command.ts) - a command Object
+- [update-user-address.command.ts](src/modules/user/commands/create-user/create-user.command.ts) - a command Object
 - [create-user.message.controller.ts](src/modules/user/controller/create-user.message.controller.ts) - controller executes a command using a command bus. This decouples it from a command handler.
-- [create-user.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - a command handler.
+- [update-user-address.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - a command handler.
 
 Read more:
 
@@ -267,7 +267,7 @@ Similarly to Commands, Queries can use a `Query Bus` if needed. This way you can
 
 Example files:
 
-- [find-users.query-handler.ts](src/modules/user/queries/find-users/find-users.query-handler.ts) - a query handler. Notice how we query the database directly, without using domain objects or repositories (more info [here](https://codeopinion.com/should-you-use-the-repository-pattern-with-cqrs-yes-and-no/)).
+- [find-user.query-handler.ts](src/modules/user/queries/find-users/find-users.query-handler.ts) - a query handler. Notice how we query the database directly, without using domain objects or repositories (more info [here](https://codeopinion.com/should-you-use-the-repository-pattern-with-cqrs-yes-and-no/)).
 
 ---
 
@@ -309,7 +309,7 @@ Example files:
 
 - [repository.port.ts](src/libs/ddd/repository.port.ts) - generic port for repositories
 - [user.repository.port.ts](src/modules/user/database/user.repository.port.ts) - a port for user repository
-- [find-users.query-handler.ts](src/modules/user/queries/find-users/find-users.query-handler.ts) - notice how query handler depends on a port instead of concrete repository implementation, and an implementation is injected
+- [find-user.query-handler.ts](src/modules/user/queries/find-users/find-users.query-handler.ts) - notice how query handler depends on a port instead of concrete repository implementation, and an implementation is injected
 - [logger.port.ts](src/libs/ports/logger.port.ts) - another example of a port for application logger
 
 Read more:
@@ -427,7 +427,7 @@ Examples:
 - [user-created.domain-event.ts](src/modules/user/domain/events/user-created.domain-event.ts) - simple object that holds data related to published event.
 - [create-wallet-when-user-is-created.domain-event-handler.ts](src/modules/wallet/application/event-handlers/create-wallet-when-user-is-created.domain-event-handler.ts) - this is an example of Domain Event Handler that executes some actions when a domain event is raised (in this case, when user is created it also creates a wallet for that user).
 - [sql-repository.base.ts](src/libs/db/sql-repository.base.ts) - repository publishes all domain events for execution when it persists changes to an aggregate.
-- [create-user.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - in a service we execute a global transaction to make sure all the changes done by Domain Events across the application are stored atomically (all or nothing).
+- [update-user-address.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - in a service we execute a global transaction to make sure all the changes done by Domain Events across the application are stored atomically (all or nothing).
 
 To have a better understanding on domain events and implementation read this:
 
@@ -766,7 +766,7 @@ class IncorrectUserAddressError extends UserError {
 type CreateUserError = UserAlreadyExistsError | IncorrectUserAddressError;
 
 function createUser(
-  command: CreateUserCommand,
+  command: UpdateUserAddressCommand,
 ): Result<UserEntity, CreateUserError> {
   // ^ explicitly showing what function returns
   if (await userRepo.exists(command.email)) {
@@ -814,7 +814,7 @@ Libraries you can use:
 Example files:
 
 - [user.errors.ts](src/modules/user/domain/user.errors.ts) - user errors
-- [create-user.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - notice how `Err(new UserAlreadyExistsError())` is returned instead of throwing it.
+- [update-user-address.service.ts](src/modules/user/commands/create-user/create-user.service.ts) - notice how `Err(new UserAlreadyExistsError())` is returned instead of throwing it.
 - [create-user.http.controller.ts](src/modules/user/controller/create-user.http.controller.ts) - in a user http controller we match an error and decide what to do with it. If an error is `UserAlreadyExistsError` we throw a `Conflict Exception` which a user will receive as `409 - Conflict`. If an error is unknown we just throw it and our framework will return it to the user as `500 - Internal Server Error`.
 - [create-user.cli.controller.ts](src/modules/user/controller/create-user.cli.controller.ts) - in a CLI controller we don't care about returning a correct status code so we just `.unwrap()` a result, which will just throw in case of an error.
 - [exceptions](src/libs/exceptions) folder contains some generic app exceptions (not domain specific)
@@ -916,7 +916,7 @@ DTO contracts protect your clients from internal data structure changes that may
 
 When updating DTO interfaces, a new version of API can be created by prefixing an endpoint with a version number, for example: `v2/users`. This will make transition painless by preventing breaking compatibility for users that are slow to update their apps that uses your API.
 
-You may have noticed that our [create-user.command.ts](src/modules/user/commands/create-user/create-user.command.ts) contains the same properties as [create-user.request.dto.ts](src/modules/user/dtos/create-user.request.dto.ts).
+You may have noticed that our [update-user-address.command.ts](src/modules/user/commands/create-user/create-user.command.ts) contains the same properties as [create-user.request.dto.ts](src/modules/user/dtos/create-user.request.dto.ts).
 So why do we need DTOs if we already have Command objects that carry properties? Shouldn't we just have one class to avoid duplication?
 
 > Because commands and DTOs are different things, they tackle different problems. Commands are serializable method calls - calls of the methods in the domain model. Whereas DTOs are the data contracts. The main reason to introduce this separate layer with data contracts is to provide backward compatibility for the clients of your API. Without the DTOs, the API will have breaking changes with every modification of the domain model.
@@ -1141,7 +1141,7 @@ This looks better. With this approach each module is encapsulated and only conta
 - User
   - CreateUser
     - CreateUserController
-    - CreateUserService
+    - UpdateUserAddressService
     - CreateUserDTO
   - UpdateUser
     - UpdateUserController

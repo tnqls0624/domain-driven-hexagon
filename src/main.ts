@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
-import fastifyHelmet from '@fastify/helmet';
+import helmet from '@fastify/helmet';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -10,6 +10,7 @@ import {
 import multipart from '@fastify/multipart';
 import compression from '@fastify/compress';
 
+declare const module: any;
 async function bootstrap() {
   const logger = new Logger(bootstrap.name);
   const fastifyAdapter = new FastifyAdapter({
@@ -26,28 +27,25 @@ async function bootstrap() {
     );
   await app.register(multipart);
   await app.register(compression, { encodings: ['gzip', 'deflate'] });
+  await app.register(helmet);
 
-  // await app.register(fastifyHelmet, {
-  //   hidePoweredBy: true,
-  //   frameguard: { action: 'deny' },
-  //   hsts: { maxAge: 5184000 }, // 60 days
-  //   ieNoOpen: true,
-  //   noSniff: true,
-  //   xssFilter: true,
-  //   contentSecurityPolicy: {
-  //     directives: {
-  //       defaultSrc: ['self'],
-  //     },
-  //   },
-  // });
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.enableShutdownHooks();
 
   setupSwagger(app);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
-  app.enableShutdownHooks();
   await app.listen(3000, '0.0.0.0');
   logger.log(`Test Server is Running On: ${await app.getUrl()}`);
+
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 
 function setupSwagger(app: INestApplication): void {

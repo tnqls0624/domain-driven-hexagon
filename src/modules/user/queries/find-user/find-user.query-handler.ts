@@ -1,14 +1,14 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Ok, Result } from 'oxide.ts';
-import { Paginated } from '@src/libs/ddd';
+import { Err, Ok, Result } from 'oxide.ts';
 import { PRISMA_CLIENT } from '@libs/db/prisma.di-tokens';
 import { Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { FindUsersQuery } from '@modules/user/queries/find-users/find-users.query';
+import { FindUserQuery } from '@modules/user/queries/find-user/find-user.query';
+import { UserNotFoundError } from '@modules/user/domain/user.errors';
 import { UserModel } from '@modules/user/database/user.repository';
 
-@QueryHandler(FindUsersQuery)
-export class FindUsersQueryHandler implements IQueryHandler {
+@QueryHandler(FindUserQuery)
+export class FindUserQueryHandler implements IQueryHandler {
   constructor(@Inject(PRISMA_CLIENT) private prisma: PrismaClient) {}
 
   /**
@@ -18,43 +18,26 @@ export class FindUsersQueryHandler implements IQueryHandler {
    * and execute query directly
    */
   async execute(
-    query: FindUsersQuery,
-    // ): Promise<Result<Paginated<UserModel>, Error>> {
-  ): Promise<Result<Paginated<UserModel>, Error>> {
-    const { limit, orderBy, page } = query;
-    const [records, rowCount] = await Promise.all([
-      this.prisma.user.findMany({
-        select: {
-          id: true,
-          email: true,
-          country: true,
-          postalCode: true,
-          street: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        where: {
-          removedAt: null,
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: orderBy.field ? { id: orderBy.param } : {},
-      }),
-      this.prisma.user.count({
-        where: {
-          removedAt: null,
-        },
-      }),
-    ]);
-    return Ok(
-      new Paginated({
-        data: records,
-        count: rowCount,
-        limit: query.limit,
-        page: query.page,
-      }),
-    );
+    query: FindUserQuery,
+  ): Promise<Result<UserModel, UserNotFoundError>> {
+    const { id } = query;
+    const found = await this.prisma.user.findFirst({
+      select: {
+        id: true,
+        email: true,
+        country: true,
+        postalCode: true,
+        street: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: {
+        id,
+      },
+    });
+    if (!found) return Err(new UserNotFoundError());
+    return Ok(found);
     /**
      * Constructing a query with Slonik.
      * More info: https://contra.com/p/AqZWWoUB-writing-composable-sql-using-java-script

@@ -1,4 +1,5 @@
 import { Address } from './value-objects/address.value-object';
+import { UserRoles } from '@prisma/client';
 
 // All properties that a User has
 export interface UserProps {
@@ -18,10 +19,4 @@ export interface UpdateUserAddressProps {
   country?: string;
   postalCode?: string;
   street?: string;
-}
-
-export enum UserRoles {
-  admin = 'admin',
-  moderator = 'moderator',
-  guest = 'guest',
 }

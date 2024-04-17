@@ -44,6 +44,7 @@
     "@nestjs/cqrs": "^10.2.7",
     "@nestjs/event-emitter": "^2.0.4",
     "@nestjs/jwt": "^10.2.0",
+    "@nestjs/microservices": "^10.3.7",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-fastify": "^10.3.7",
     "@nestjs/platform-socket.io": "^10.3.7",

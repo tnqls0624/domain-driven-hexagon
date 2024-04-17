@@ -1,17 +1,14 @@
-import { NotFoundException } from '@libs/exceptions';
+import { ConflictException, NotFoundException } from '@libs/exceptions';
 import { UserRepositoryPort } from '@modules/user/database/user.repository.port';
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { Err, Ok, Result } from 'oxide.ts';
 import { USER_REPOSITORY } from '../../user.di-tokens';
-
-export class DeleteUserCommand {
-  readonly userId: string;
-
-  constructor(props: DeleteUserCommand) {
-    this.userId = props.userId;
-  }
-}
+import { DeleteUserCommand } from '@modules/user/commands/delete-user/delete-user.command';
+import {
+  UserAlreadyExistsError,
+  UserNotFoundError,
+} from '@modules/user/domain/user.errors';
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserService {
@@ -22,9 +19,9 @@ export class DeleteUserService {
 
   async execute(
     command: DeleteUserCommand,
-  ): Promise<Result<boolean, NotFoundException>> {
-    const found = await this.userRepo.findOneById(command.userId);
-    if (found.isNone()) return Err(new NotFoundException());
+  ): Promise<Result<boolean, UserNotFoundError>> {
+    const found = await this.userRepo.findOneById(command.id);
+    if (found.isNone()) return Err(new UserNotFoundError());
     const user = found.unwrap();
     user.delete();
     const result = await this.userRepo.delete(user);

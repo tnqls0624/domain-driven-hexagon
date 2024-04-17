@@ -42,14 +42,14 @@ export abstract class Entity<EntityProps> {
   /**
    * ID is set in the concrete entity implementation to support
    * different ID types depending on your needs.
-   * For example it could be a UUID for aggregate root,
-   * and shortid / nanoid for child entities.
+   * For example, it could be a UUID for aggregate root,
+   * and shorted / nanoid for child entities.
    */
   protected abstract _id: AggregateID;
 
   private readonly _createdAt: Date;
 
-  private _updatedAt: Date;
+  private readonly _updatedAt: Date;
 
   get id(): AggregateID {
     return this._id;

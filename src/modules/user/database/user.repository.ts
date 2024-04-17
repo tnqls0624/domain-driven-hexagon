@@ -1,15 +1,16 @@
 import { UserRepositoryPort } from './user.repository.port';
 import { z } from 'zod';
 import { UserMapper } from '../user.mapper';
-import { UserRoles } from '../domain/user.types';
 import { UserEntity } from '../domain/user.entity';
 import { SqlRepositoryBase } from '@src/libs/db/sql-repository.base';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, UserRoles } from '@prisma/client';
 import { RequestContextService } from '@libs/application/context/AppRequestContext';
 import { PRISMA_CLIENT } from '@libs/db/prisma.di-tokens';
 import { None, Option, Some } from 'oxide.ts';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { NotFoundException } from '@libs/exceptions';
 
 /**
  * Runtime validation of user object for extra safety (in case database schema changes).
@@ -49,7 +50,7 @@ export class UserRepository
     super(prisma, mapper, eventEmitter, new Logger(UserRepository.name));
   }
 
-  async findOneById(id: string): Promise<Option<any>> {
+  async findOneById(id: string): Promise<Option<UserEntity>> {
     const result = await this.prisma.user.findFirst({
       where: {
         id,
@@ -92,34 +93,87 @@ export class UserRepository
   // async insert(entity: UserEntity): Promise<UserEntity | null> {
   async insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined> {
     try {
+      this.logger.debug(
+        `[${RequestContextService.getRequestId()}] creating entities ${
+          entity.id
+        } from ${this.tableName}`,
+      );
+
       const tx = RequestContextService.getTransactionConnection();
       const entities = Array.isArray(entity) ? entity : [entity];
       const records = entities.map(this.mapper.toPersistence);
       return await tx?.user.createMany({
         data: records,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        this.logger.debug(
+          `[${RequestContextService.getRequestId()}] ${error.message}`,
+        );
+        throw new ConflictException(
+          'Record already exists',
+          `${(error as any).meta.modelName} model, ${
+            (error as any).meta.target
+          } request error`,
+        );
+      }
       throw error;
     }
   }
 
   async delete(entity: UserEntity): Promise<boolean> {
-    entity.validate();
-    this.logger.debug(
-      `[${RequestContextService.getRequestId()}] deleting entities ${
-        entity.id
-      } from ${this.tableName}`,
-    );
-    await this.prisma.user.update({
-      where: {
-        id: entity.id,
-      },
-      data: {
-        removedAt: new Date(),
-      },
-    });
-    await entity.publishEvents(this.logger, this.eventEmitter);
+    try {
+      this.logger.debug(
+        `[${RequestContextService.getRequestId()}] deleting entities ${
+          entity.id
+        } from ${this.tableName}`,
+      );
+      const record = this.mapper.toPersistence(entity);
+      await this.prisma.user.update({
+        where: {
+          id: record.id,
+        },
+        data: {
+          removedAt: new Date(),
+        },
+      });
+      await entity.publishEvents(this.logger, this.eventEmitter);
+      return true;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        this.logger.debug(
+          `[${RequestContextService.getRequestId()}] ${error.message}`,
+        );
+        throw new NotFoundException('Record not found');
+      }
+      throw error;
+    }
+  }
 
-    return true;
+  async updateAddress(entity: UserEntity): Promise<boolean> {
+    try {
+      this.logger.debug(
+        `[${RequestContextService.getRequestId()}] update Address entities ${
+          entity.id
+        } from ${this.tableName}`,
+      );
+      const record = this.mapper.toPersistence(entity);
+      await this.prisma.user.update({
+        where: {
+          id: record.id,
+        },
+        data: record,
+      });
+      await entity.publishEvents(this.logger, this.eventEmitter);
+      return true;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        this.logger.debug(
+          `[${RequestContextService.getRequestId()}] ${error.message}`,
+        );
+        throw new NotFoundException('Record not found');
+      }
+      throw error;
+    }
   }
 }

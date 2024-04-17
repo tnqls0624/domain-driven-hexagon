@@ -11,7 +11,7 @@ export interface FindUsersParams extends PaginatedQueryParams {
 
 export interface UserRepositoryPort extends RepositoryPort {
   insert(entity: UserEntity): Promise<Prisma.BatchPayload | undefined>;
-
+  updateAddress(entity: UserEntity): Promise<boolean>;
   delete(entity: UserEntity): Promise<boolean>;
   findOneById(id: string): Promise<Option<UserEntity>>;
 }

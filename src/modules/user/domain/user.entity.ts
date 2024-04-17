@@ -5,12 +5,12 @@ import {
   CreateUserProps,
   UpdateUserAddressProps,
   UserProps,
-  UserRoles,
 } from './user.types';
 import { UserDeletedDomainEvent } from './events/user-deleted.domain-event';
 import { UserRoleChangedDomainEvent } from './events/user-role-changed.domain-event';
 import { UserAddressUpdatedDomainEvent } from './events/user-address-updated.domain-event';
 import { randomUUID } from 'crypto';
+import { UserRoles } from '@prisma/client';
 
 export class UserEntity extends AggregateRoot<UserProps> {
   protected _id: AggregateID;

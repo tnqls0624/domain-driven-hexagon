@@ -5,9 +5,6 @@
     in a respective repository.
 */
 
-import { Option } from 'oxide.ts';
-import { Entity } from '.';
-
 export class Paginated<T> {
   readonly count: number;
   readonly limit: number;

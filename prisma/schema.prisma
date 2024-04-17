@@ -8,13 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRoles {
+  admin
+  moderator
+  guest
+}
+
 model user {
   id         String    @id
-  role       String
+  role       UserRoles
   email      String
   country    String
-  postalCode String?
-  street     String?
+  postalCode String
+  street     String
   token      String?
   provider   String?
   createdAt  DateTime  @default(now())

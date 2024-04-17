@@ -32,7 +32,7 @@ export class UserMapper
   }
 
   toDomain(record: UserModel): UserEntity {
-    const entity = new UserEntity({
+    return new UserEntity({
       id: record.id,
       createdAt: new Date(record.createdAt),
       updatedAt: new Date(record.updatedAt),
@@ -46,7 +46,6 @@ export class UserMapper
         }),
       },
     });
-    return entity;
   }
 
   toResponse(entity: UserEntity): UserResponseDto {

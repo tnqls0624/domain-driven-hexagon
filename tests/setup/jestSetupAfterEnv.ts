@@ -1,6 +1,6 @@
-import { Test, TestingModuleBuilder, TestingModule } from '@nestjs/testing';
+import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '@src/app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import * as request from 'supertest';
 import { ValidationPipe } from '@nestjs/common';
 
@@ -8,16 +8,17 @@ import { ValidationPipe } from '@nestjs/common';
 
 export class TestServer {
   constructor(
-    public readonly serverApplication: NestExpressApplication,
+    public readonly serverApplication: NestFastifyApplication,
     public readonly testingModule: TestingModule,
-  ) {}
+  ) {
+  }
 
   public static async new(
     testingModuleBuilder: TestingModuleBuilder,
   ): Promise<TestServer> {
     const testingModule: TestingModule = await testingModuleBuilder.compile();
 
-    const app: NestExpressApplication = testingModule.createNestApplication();
+    const app: NestFastifyApplication = testingModule.createNestApplication();
 
     app.useGlobalPipes(
       new ValidationPipe({ transform: true, whitelist: true }),
@@ -53,9 +54,7 @@ export function getTestServer(): TestServer {
 
 export function getHttpServer(): request.SuperTest<request.Test> {
   const testServer = getTestServer();
-  const httpServer = request(testServer.serverApplication.getHttpServer());
-
-  return httpServer;
+  return request(testServer.serverApplication.getHttpServer());
 }
 
 // setup
@@ -65,5 +64,5 @@ beforeAll(async (): Promise<void> => {
 
 // cleanup
 afterAll(async (): Promise<void> => {
-  testServer.serverApplication.close();
+  await testServer.serverApplication.close();
 });

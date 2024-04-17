@@ -1,29 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  MaxLength,
-  IsString,
   IsAlphanumeric,
+  IsString,
   Matches,
-  IsOptional,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 
-export class FindUsersRequestDto {
+export class UpdateUserAddressRequestDto {
   @ApiProperty({ example: 'France', description: 'Country of residence' })
-  @IsOptional()
   @MaxLength(50)
+  @MinLength(4)
   @IsString()
   @Matches(/^[a-zA-Z ]*$/)
-  readonly country?: string;
+  readonly country: string;
 
   @ApiProperty({ example: '28566', description: 'Postal code' })
-  @IsOptional()
   @MaxLength(10)
+  @MinLength(4)
   @IsAlphanumeric()
-  readonly postalCode?: string;
+  readonly postalCode: string;
 
   @ApiProperty({ example: 'Grande Rue', description: 'Street' })
-  @IsOptional()
   @MaxLength(50)
+  @MinLength(5)
   @Matches(/^[a-zA-Z ]*$/)
-  readonly street?: string;
+  readonly street: string;
 }
